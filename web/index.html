@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Subscription</title>
+<style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; }
+    input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; display: none; }
+</style>
+</head>
+<body>
+<h1>Weather Subscription</h1>
+
+<div class="form-group">
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+</div>
+<div class="form-group">
+    <label for="city">City:</label>
+    <input type="text" id="city" required>
+</div>
+<div class="form-group">
+    <label for="frequency">Frequency:</label>
+    <select id="frequency" required>
+        <option value="hourly">Hourly</option>
+        <option value="daily">Daily</option>
+    </select>
+</div>
+<button onclick="subscribe()">Subscribe</button>
+<div id="result"></div>
+
+<script>
+    async function subscribe() {
+    const email = document.getElementById('email').value;
+    const city = document.getElementById('city').value;
+    const frequency = document.getElementById('frequency').value;
+
+    try {
+    const response = await fetch('http://localhost:8080/api/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, city, frequency })
+});
+
+    const data = await response.json();
+    document.getElementById('result').innerHTML = JSON.stringify(data);
+    document.getElementById('result').style.display = 'block';
+    if (data.token) {
+    alert('Check your email for confirmation link!');
+}
+} catch (error) {
+    document.getElementById('result').innerHTML = `Error: ${error.message}`;
+    document.getElementById('result').style.display = 'block';
+}
+}
+</script>
+</body>
+</html>

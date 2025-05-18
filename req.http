@@ -1,0 +1,26 @@
+###
+
+# curl -X POST http://localhost:8080/api/subscribe -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"city\":\"Kyiv\",\"frequency\":\"daily\"}"
+POST http://localhost:8080/api/subscribe
+Content-Type: application/json
+
+{
+  "email": "",
+  "city": "Kyiv",
+  "frequency": "hourly"
+}
+
+###
+# curl http://localhost:8080/api/unsubscribe/rnd_token
+GET http://localhost:8080/api/unsubscribe/leLuPPmedUXI0bGYddfsOZEO_KaFthyJHWsb9lWfsdo=
+
+###
+
+# curl http://localhost:8080/api/weather?city=Kyiv
+GET http://localhost:8080/api/weather?city=Kyiv
+
+###
+
+
+
+
