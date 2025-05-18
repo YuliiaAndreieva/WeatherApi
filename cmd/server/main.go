@@ -7,6 +7,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"weather-api/internal/core/domain"
 
@@ -65,8 +66,10 @@ func main() {
 	cron.AddFunc("0 0 8 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
 	cron.Start()
 
+	port := strconv.Itoa(cfg.Port)
+
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         port,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
