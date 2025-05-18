@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"weather-api/internal/core/domain"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -50,18 +51,19 @@ func main() {
 	subscriptionService := service.NewSubscriptionService(repo, weatherService, emailAdapter, tokenService)
 	emailService := service.NewEmailService(repo, weatherAdapter, emailAdapter)
 
-	handler := httphandler.NewHandler(weatherService, subscriptionService)
+	weatherHandler := httphandler.NewWeatherHandler(weatherService)
+	subscriptionHandler := httphandler.NewSubscriptionHandler(subscriptionService)
 
 	r := gin.Default()
 	r.Static("/web", "./web")
-	r.GET("/api/weather", handler.GetWeather)
-	r.POST("/api/subscribe", handler.Subscribe)
-	r.GET("/api/confirm/:token", handler.Confirm)
-	r.GET("/api/unsubscribe/:token", handler.Unsubscribe)
+	r.GET("/api/weather", weatherHandler.GetWeather)
+	r.POST("/api/subscribe", subscriptionHandler.Subscribe)
+	r.GET("/api/confirm/:token", subscriptionHandler.Confirm)
+	r.GET("/api/unsubscribe/:token", subscriptionHandler.Unsubscribe)
 
 	cron := cron.New()
-	cron.AddFunc("* * * * *", func() { emailService.SendHourlyUpdates(context.Background()) })
-	cron.AddFunc("0 0 8 * * *", func() { emailService.SendDailyUpdates(context.Background()) })
+	cron.AddFunc("* * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
+	cron.AddFunc("0 0 8 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
 	cron.Start()
 
 	srv := &http.Server{
