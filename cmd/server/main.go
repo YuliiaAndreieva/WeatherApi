@@ -26,7 +26,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
-	log.Printf("pass %s", cfg.SMTPPass)
 
 	db, err := sql.Open("postgres", cfg.DBConnStr)
 	if err != nil {

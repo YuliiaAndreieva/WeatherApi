@@ -23,12 +23,12 @@ func NewSubscriptionService(repo port.SubscriptionRepository, weatherSvc port.We
 	}
 }
 
-func (s *SubscriptionService) Subscribe(ctx context.Context, email, city, frequency string) (string, error) {
-	log.Printf("Attempting to create subscription for email: %s, city: %s, frequency: %s", email, city, frequency)
+func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city string, frequency domain.Frequency) (string, error) {
+	log.Printf("Attempting to create subscription for city: %s, frequency: %s", city, frequency)
 
 	token, err := s.tokenSvc.GenerateToken()
 	if err != nil {
-		log.Printf("Failed to generate token for email %s: %v", email, err)
+		log.Printf("Failed to generate token: %v", err)
 		return "", err
 	}
 
@@ -40,47 +40,47 @@ func (s *SubscriptionService) Subscribe(ctx context.Context, email, city, freque
 		IsConfirmed: false,
 	}
 	if err := s.repo.CreateSubscription(ctx, sub); err != nil {
-		log.Printf("Failed to create subscription in repository for email %s: %v", email, err)
+		log.Printf("Failed to create subscription in repository: %v", err)
 		return "", err
 	}
 
 	confirmURL := "http://localhost:8080/api/confirm/" + token
 	body := "Confirm your subscription: " + confirmURL
 	if err := s.emailSvc.SendEmail(email, "Confirm Subscription", body); err != nil {
-		log.Printf("Failed to send confirmation email to %s: %v", email, err)
+		log.Printf("Failed to send confirmation email: %v", err)
 		return "", err
 	}
 
-	log.Printf("Successfully created subscription for email: %s with token: %s", email, token)
+	log.Printf("Successfully created subscription")
 	return token, nil
 }
 
 func (s *SubscriptionService) Confirm(ctx context.Context, token string) error {
-	log.Printf("Attempting to confirm subscription with token: %s", token)
+	log.Printf("Attempting to confirm subscription")
 
 	sub, err := s.repo.GetSubscriptionByToken(ctx, token)
 	if err != nil {
-		log.Printf("Failed to get subscription for token %s: %v", token, err)
+		log.Printf("Failed to get subscription: %v", err)
 		return err
 	}
 	sub.IsConfirmed = true
 	if err := s.repo.UpdateSubscription(ctx, sub); err != nil {
-		log.Printf("Failed to update subscription confirmation for token %s: %v", token, err)
+		log.Printf("Failed to update subscription confirmation: %v", err)
 		return err
 	}
 
-	log.Printf("Successfully confirmed subscription for email: %s", sub.Email)
+	log.Printf("Successfully confirmed subscription")
 	return nil
 }
 
 func (s *SubscriptionService) Unsubscribe(ctx context.Context, token string) error {
-	log.Printf("Attempting to unsubscribe with token: %s", token)
+	log.Printf("Attempting to unsubscribe")
 
 	if err := s.repo.DeleteSubscription(ctx, token); err != nil {
-		log.Printf("Failed to delete subscription for token %s: %v", token, err)
+		log.Printf("Failed to delete subscription: %v", err)
 		return err
 	}
 
-	log.Printf("Successfully unsubscribed for token: %s", token)
+	log.Printf("Successfully unsubscribed")
 	return nil
 }

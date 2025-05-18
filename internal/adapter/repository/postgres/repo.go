@@ -18,36 +18,36 @@ func NewSubscriptionRepo(db *sql.DB) port.SubscriptionRepository {
 }
 
 func (r *SubscriptionRepo) CreateSubscription(ctx context.Context, sub domain.Subscription) error {
-	log.Printf("Creating subscription for email: %s, city: %s", sub.Email, sub.City)
+	log.Printf("Creating subscription for city: %s", sub.City)
 	query := `INSERT INTO subscriptions (email, city, frequency, token, is_confirmed) VALUES ($1, $2, $3, $4, $5)`
 	_, err := r.db.ExecContext(ctx, query, sub.Email, sub.City, sub.Frequency, sub.Token, sub.IsConfirmed)
 	if err != nil {
 		log.Printf("Failed to create subscription: %v", err)
 		return err
 	}
-	log.Printf("Successfully created subscription for email: %s", sub.Email)
+	log.Printf("Successfully created subscription")
 	return nil
 }
 
 func (r *SubscriptionRepo) GetSubscriptionByToken(ctx context.Context, token string) (domain.Subscription, error) {
-	log.Printf("Looking up subscription with token: %s", token)
+	log.Printf("Looking up subscription")
 	var sub domain.Subscription
 	query := `SELECT id, email, city, frequency, token, is_confirmed FROM subscriptions WHERE token = $1`
 	err := r.db.QueryRowContext(ctx, query, token).Scan(&sub.ID, &sub.Email, &sub.City, &sub.Frequency, &sub.Token, &sub.IsConfirmed)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Printf("No subscription found for token: %s", token)
+			log.Printf("No subscription found")
 			return domain.Subscription{}, errors.New("subscription not found")
 		}
-		log.Printf("Error getting subscription by token: %v", err)
+		log.Printf("Error getting subscription: %v", err)
 		return domain.Subscription{}, err
 	}
-	log.Printf("Found subscription for token: %s, email: %s", token, sub.Email)
+	log.Printf("Found subscription")
 	return sub, nil
 }
 
 func (r *SubscriptionRepo) UpdateSubscription(ctx context.Context, sub domain.Subscription) error {
-	log.Printf("Updating subscription for token: %s", sub.Token)
+	log.Printf("Updating subscription")
 	query := `UPDATE subscriptions SET is_confirmed = $1 WHERE token = $2`
 	result, err := r.db.ExecContext(ctx, query, sub.IsConfirmed, sub.Token)
 	if err != nil {
@@ -62,16 +62,16 @@ func (r *SubscriptionRepo) UpdateSubscription(ctx context.Context, sub domain.Su
 	}
 
 	if rowsAffected == 0 {
-		log.Printf("No subscription found to update for token: %s", sub.Token)
+		log.Printf("No subscription found to update")
 		return errors.New("subscription not found")
 	}
 
-	log.Printf("Successfully updated subscription for token: %s", sub.Token)
+	log.Printf("Successfully updated subscription")
 	return nil
 }
 
 func (r *SubscriptionRepo) DeleteSubscription(ctx context.Context, token string) error {
-	log.Printf("Deleting subscription with token: %s", token)
+	log.Printf("Deleting subscription")
 	query := `DELETE FROM subscriptions WHERE token = $1`
 	result, err := r.db.ExecContext(ctx, query, token)
 	if err != nil {
@@ -86,11 +86,11 @@ func (r *SubscriptionRepo) DeleteSubscription(ctx context.Context, token string)
 	}
 
 	if rowsAffected == 0 {
-		log.Printf("No subscription found to delete for token: %s", token)
+		log.Printf("No subscription found to delete")
 		return errors.New("subscription not found")
 	}
 
-	log.Printf("Successfully deleted subscription for token: %s", token)
+	log.Printf("Successfully deleted subscription")
 	return nil
 }
 

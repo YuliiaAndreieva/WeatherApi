@@ -22,19 +22,10 @@ func NewEmailService(repo port.SubscriptionRepository, weatherSvc port.WeatherSe
 	}
 }
 
-func (s *EmailService) SendHourlyUpdates(ctx context.Context) {
-	subs, err := s.repo.GetSubscriptionsByFrequency(ctx, "hourly")
+func (s *EmailService) SendUpdates(ctx context.Context, frequency domain.Frequency) {
+	subs, err := s.repo.GetSubscriptionsByFrequency(ctx, string(frequency))
 	if err != nil {
-		log.Printf("Failed to get hourly subscriptions: %v", err)
-		return
-	}
-	s.sendUpdates(subs)
-}
-
-func (s *EmailService) SendDailyUpdates(ctx context.Context) {
-	subs, err := s.repo.GetSubscriptionsByFrequency(ctx, "daily")
-	if err != nil {
-		log.Printf("Failed to get daily subscriptions: %v", err)
+		log.Printf("Failed to get %s subscriptions: %v", frequency, err)
 		return
 	}
 	s.sendUpdates(subs)
