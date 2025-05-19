@@ -71,8 +71,8 @@ func main() {
 	})
 
 	cron := cron.New()
-	cron.AddFunc("0 0 * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
-	cron.AddFunc("0 0 8 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
+	cron.AddFunc("0 * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
+	cron.AddFunc("0 0 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
 	cron.Start()
 
 	port := strconv.Itoa(cfg.Port)
