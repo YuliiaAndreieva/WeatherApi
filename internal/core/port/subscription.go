@@ -11,4 +11,5 @@ type SubscriptionRepository interface {
 	UpdateSubscription(ctx context.Context, sub domain.Subscription) error
 	DeleteSubscription(ctx context.Context, token string) error
 	GetSubscriptionsByFrequency(ctx context.Context, frequency string) ([]domain.Subscription, error)
+	IsEmailSubscribed(ctx context.Context, email string) (bool, error)
 }

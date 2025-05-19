@@ -27,6 +27,15 @@ func NewSubscriptionService(repo port.SubscriptionRepository, weatherSvc port.We
 func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city string, frequency domain.Frequency) (string, error) {
 	log.Printf("Attempting to create subscription for city: %s, frequency: %s", city, frequency)
 
+	isSubscribed, err := s.repo.IsEmailSubscribed(ctx, email)
+	if err != nil {
+		log.Printf("Failed to check email subscription: %v", err)
+		return "", err
+	}
+	if isSubscribed {
+		return "", domain.ErrEmailAlreadySubscribed
+	}
+
 	token, err := s.tokenSvc.GenerateToken()
 	if err != nil {
 		log.Printf("Failed to generate token: %v", err)

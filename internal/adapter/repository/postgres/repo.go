@@ -117,3 +117,16 @@ func (r *SubscriptionRepo) GetSubscriptionsByFrequency(ctx context.Context, freq
 	log.Printf("Found %d subscriptions for frequency: %s", len(subs), frequency)
 	return subs, nil
 }
+
+func (r *SubscriptionRepo) IsEmailSubscribed(ctx context.Context, email string) (bool, error) {
+	log.Printf("Checking if email is already subscribed: %s", email)
+	query := `SELECT EXISTS(SELECT 1 FROM subscriptions WHERE email = $1)`
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&exists)
+	if err != nil {
+		log.Printf("Failed to check email subscription: %v", err)
+		return false, err
+	}
+	log.Printf("Email subscription check result: %v", exists)
+	return exists, nil
+}

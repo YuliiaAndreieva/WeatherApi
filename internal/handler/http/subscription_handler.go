@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"weather-api/internal/core/domain"
@@ -23,7 +24,7 @@ func (h *SubscriptionHandler) Subscribe(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Invalid subscription request: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrInvalidInput.Error()})
 		return
 	}
 
@@ -31,18 +32,22 @@ func (h *SubscriptionHandler) Subscribe(c *gin.Context) {
 
 	if req.Frequency != domain.FrequencyDaily && req.Frequency != domain.FrequencyHourly {
 		log.Printf("Invalid frequency in subscription request: %s", req.Frequency)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Frequency must be 'daily' or 'hourly'"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrInvalidInput.Error()})
 		return
 	}
 
-	token, err := h.subscriptionService.Subscribe(c, req.Email, req.City, req.Frequency)
+	_, err := h.subscriptionService.Subscribe(c, req.Email, req.City, req.Frequency)
 	if err != nil {
 		log.Printf("Failed to process subscription: %v", err)
+		if errors.Is(err, domain.ErrEmailAlreadySubscribed) {
+			c.JSON(http.StatusConflict, gin.H{"error": domain.ErrEmailAlreadySubscribed.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	log.Printf("Successfully processed subscription request")
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{"message": "Subscription successful. Confirmation email sent."})
 }
 
 func (h *SubscriptionHandler) Confirm(c *gin.Context) {
