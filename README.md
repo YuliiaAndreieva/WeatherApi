@@ -2,7 +2,7 @@
 
 A Go-based weather API service that provides weather updates via email subscriptions. Users can subscribe to receive weather updates for their preferred cities either hourly or daily.
 
-### 🚨 Please be aware that site is deployed at https://weatherapi-rpum.onrender.com🚨
+### 🚨 Please be aware that site is deployed at https://weatherapi-rpum.onrender.com 🚨
 ## Architecture
 
 The project follows a clean architecture pattern with the following structure:
