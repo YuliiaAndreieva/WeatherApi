@@ -130,3 +130,16 @@ func (r *SubscriptionRepo) IsEmailSubscribed(ctx context.Context, email string) 
 	log.Printf("Email subscription check result: %v", exists)
 	return exists, nil
 }
+
+func (r *SubscriptionRepo) IsTokenExists(ctx context.Context, token string) (bool, error) {
+	log.Printf("Checking if token exists: %s", token)
+	query := `SELECT EXISTS(SELECT 1 FROM subscriptions WHERE token = $1)`
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, token).Scan(&exists)
+	if err != nil {
+		log.Printf("Failed to check token existence: %v", err)
+		return false, err
+	}
+	log.Printf("Token existence check result: %v", exists)
+	return exists, nil
+}

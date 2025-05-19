@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 	"weather-api/internal/core/domain"
 	"weather-api/internal/core/port"
@@ -36,6 +37,16 @@ func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city 
 		return "", domain.ErrEmailAlreadySubscribed
 	}
 
+	_, err = s.weatherSvc.GetWeather(city)
+	if err != nil {
+		if errors.Is(err, domain.ErrCityNotFound) {
+			log.Printf("City not found: %s", city)
+			return "", domain.ErrCityNotFound
+		}
+		log.Printf("Failed to validate city: %v", err)
+		return "", err
+	}
+
 	token, err := s.tokenSvc.GenerateToken()
 	if err != nil {
 		log.Printf("Failed to generate token: %v", err)
@@ -68,6 +79,19 @@ func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city 
 func (s *SubscriptionService) Confirm(ctx context.Context, token string) error {
 	log.Printf("Attempting to confirm subscription")
 
+	if token == "" {
+		return domain.ErrInvalidToken
+	}
+
+	exists, err := s.repo.IsTokenExists(ctx, token)
+	if err != nil {
+		log.Printf("Failed to check token existence: %v", err)
+		return err
+	}
+	if !exists {
+		return domain.ErrTokenNotFound
+	}
+
 	sub, err := s.repo.GetSubscriptionByToken(ctx, token)
 	if err != nil {
 		log.Printf("Failed to get subscription: %v", err)
@@ -85,6 +109,20 @@ func (s *SubscriptionService) Confirm(ctx context.Context, token string) error {
 
 func (s *SubscriptionService) Unsubscribe(ctx context.Context, token string) error {
 	log.Printf("Attempting to unsubscribe")
+
+	if token == "" {
+		return domain.ErrInvalidToken
+	}
+	//TODO: validate and generate the token better in future
+
+	exists, err := s.repo.IsTokenExists(ctx, token)
+	if err != nil {
+		log.Printf("Failed to check token existence: %v", err)
+		return err
+	}
+	if !exists {
+		return domain.ErrTokenNotFound
+	}
 
 	if err := s.repo.DeleteSubscription(ctx, token); err != nil {
 		log.Printf("Failed to delete subscription: %v", err)

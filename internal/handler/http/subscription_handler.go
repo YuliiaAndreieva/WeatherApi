@@ -39,11 +39,12 @@ func (h *SubscriptionHandler) Subscribe(c *gin.Context) {
 	_, err := h.subscriptionService.Subscribe(c, req.Email, req.City, req.Frequency)
 	if err != nil {
 		log.Printf("Failed to process subscription: %v", err)
-		if errors.Is(err, domain.ErrEmailAlreadySubscribed) {
+		switch {
+		case errors.Is(err, domain.ErrEmailAlreadySubscribed):
 			c.JSON(http.StatusConflict, gin.H{"error": domain.ErrEmailAlreadySubscribed.Error()})
-			return
+		case errors.Is(err, domain.ErrCityNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": "City not found"})
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	log.Printf("Successfully processed subscription request")
@@ -56,7 +57,14 @@ func (h *SubscriptionHandler) Confirm(c *gin.Context) {
 
 	if err := h.subscriptionService.Confirm(c, token); err != nil {
 		log.Printf("Failed to confirm subscription: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		switch {
+		case errors.Is(err, domain.ErrInvalidToken):
+			c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrInvalidToken.Error()})
+		case errors.Is(err, domain.ErrTokenNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": domain.ErrTokenNotFound.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	log.Printf("Successfully confirmed subscription")
@@ -69,7 +77,14 @@ func (h *SubscriptionHandler) Unsubscribe(c *gin.Context) {
 
 	if err := h.subscriptionService.Unsubscribe(c, token); err != nil {
 		log.Printf("Failed to unsubscribe: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		switch {
+		case errors.Is(err, domain.ErrInvalidToken):
+			c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrInvalidToken.Error()})
+		case errors.Is(err, domain.ErrTokenNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": domain.ErrTokenNotFound.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	log.Printf("Successfully processed unsubscribe request")

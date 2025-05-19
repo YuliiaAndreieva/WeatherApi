@@ -35,6 +35,16 @@ func (m *MockSubscriptionRepository) DeleteSubscription(ctx context.Context, tok
 	return args.Error(0)
 }
 
+func (m *MockSubscriptionRepository) IsEmailSubscribed(ctx context.Context, email string) (bool, error) {
+	args := m.Called(ctx, email)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockSubscriptionRepository) IsTokenExists(ctx context.Context, token string) (bool, error) {
+	args := m.Called(ctx, token)
+	return args.Bool(0), args.Error(1)
+}
+
 type MockWeatherService struct {
 	mock.Mock
 }
