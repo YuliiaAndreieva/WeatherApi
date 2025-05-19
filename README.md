@@ -86,11 +86,12 @@ The service supports two types of update frequencies:
 1. **Hourly Updates**: Sent every hour
 2. **Daily Updates**: Sent once daily at 8:00 AM
 
+**Please be aware, that after click button Subscribe - on ui only button changes color and email sent, no alerts**
 To modify the update schedule, edit the cron expressions in `cmd/server/main.go`:
 
 ```go
-cron.AddFunc("0 0 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
-cron.AddFunc("0 0 8 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
+cron.AddFunc("0 * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
+cron.AddFunc("0 0 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
 ```
 
 ## Example Subscription Request
