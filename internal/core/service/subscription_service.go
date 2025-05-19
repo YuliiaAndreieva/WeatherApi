@@ -5,6 +5,7 @@ import (
 	"log"
 	"weather-api/internal/core/domain"
 	"weather-api/internal/core/port"
+	"weather-api/internal/util"
 )
 
 type SubscriptionService struct {
@@ -44,7 +45,7 @@ func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city 
 		return "", err
 	}
 
-	subject, htmlBody := BuildConfirmationEmail(city, token)
+	subject, htmlBody := util.BuildConfirmationEmail(city, token)
 	err = s.emailSvc.SendEmail(email, subject, htmlBody)
 	if err != nil {
 		log.Printf("Failed to send confirmation email: %v", err)

@@ -1,14 +1,11 @@
-package service
+package util
 
 import (
 	"fmt"
-	"log"
-	"weather-api/internal/util"
 )
 
 func BuildConfirmationEmail(city, token string) (subject, body string) {
-	baseURL := util.GetBaseURL()
-	log.Println("BASE_URL:", baseURL)
+	baseURL := GetBaseURL()
 	confirmURL := fmt.Sprintf("%s/api/confirm/%s", baseURL, token)
 	subject = "Confirm Subscription"
 	body = fmt.Sprintf(`
@@ -24,7 +21,7 @@ func BuildConfirmationEmail(city, token string) (subject, body string) {
 }
 
 func BuildWeatherUpdateEmail(city string, temperature float64, humidity int, description, token string) (subject, body string) {
-	baseURL := util.GetBaseURL()
+	baseURL := GetBaseURL()
 	unsubscribeURL := fmt.Sprintf("%s/api/unsubscribe/%s", baseURL, token)
 	subject = "Weather Update"
 	body = fmt.Sprintf(`
