@@ -14,5 +14,9 @@ func NewWeatherService(weatherSvc port.WeatherService) *WeatherService {
 }
 
 func (s *WeatherService) GetWeather(city string) (domain.Weather, error) {
-	return s.weatherSvc.GetWeather(city)
+	weather, err := s.weatherSvc.GetWeather(city)
+	if err != nil {
+		return domain.Weather{}, err
+	}
+	return weather, nil
 }

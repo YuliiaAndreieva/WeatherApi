@@ -2,6 +2,7 @@ package weather
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"weather-api/internal/core/domain"
@@ -36,9 +37,24 @@ func (w *WeatherService) GetWeather(city string) (domain.Weather, error) {
 				Text string `json:"text"`
 			} `json:"condition"`
 		} `json:"current"`
+		Error struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"error"`
 	}
 	if err := json.Unmarshal(body, &data); err != nil {
 		return domain.Weather{}, err
+	}
+
+	if data.Error.Code != 0 {
+		if data.Error.Code == 1006 {
+			return domain.Weather{}, domain.ErrCityNotFound
+		}
+		return domain.Weather{}, fmt.Errorf("API error: %s", data.Error.Message)
+	}
+
+	if data.Current.TempC == 0 && data.Current.Humidity == 0 && data.Current.Condition.Text == "" {
+		return domain.Weather{}, domain.ErrCityNotFound
 	}
 
 	return domain.Weather{
