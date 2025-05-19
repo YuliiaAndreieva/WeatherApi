@@ -55,11 +55,20 @@ func main() {
 	subscriptionHandler := httphandler.NewSubscriptionHandler(subscriptionService)
 
 	r := gin.Default()
+
 	r.Static("/web", "./web")
-	r.GET("/api/weather", weatherHandler.GetWeather)
-	r.POST("/api/subscribe", subscriptionHandler.Subscribe)
-	r.GET("/api/confirm/:token", subscriptionHandler.Confirm)
-	r.GET("/api/unsubscribe/:token", subscriptionHandler.Unsubscribe)
+
+	api := r.Group("/api")
+	{
+		api.GET("/weather", weatherHandler.GetWeather)
+		api.POST("/subscribe", subscriptionHandler.Subscribe)
+		api.GET("/confirm/:token", subscriptionHandler.Confirm)
+		api.GET("/unsubscribe/:token", subscriptionHandler.Unsubscribe)
+	}
+
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./web/index.html")
+	})
 
 	cron := cron.New()
 	cron.AddFunc("* * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })

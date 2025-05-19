@@ -27,7 +27,7 @@ func (e *EmailService) SendEmail(to, subject, body string) error {
 	msg.From = e.user
 	msg.To = []string{to}
 	msg.Subject = subject
-	msg.Text = []byte(body)
+	msg.HTML = []byte(body)
 
 	err := msg.Send(fmt.Sprintf("%s:%d", e.host, e.port), smtp.PlainAuth("", e.user, e.pass, e.host))
 	if err != nil {

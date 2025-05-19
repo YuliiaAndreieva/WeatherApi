@@ -44,9 +44,9 @@ func (s *SubscriptionService) Subscribe(ctx context.Context, email string, city 
 		return "", err
 	}
 
-	confirmURL := "http://localhost:8080/api/confirm/" + token
-	body := "Confirm your subscription: " + confirmURL
-	if err := s.emailSvc.SendEmail(email, "Confirm Subscription", body); err != nil {
+	subject, htmlBody := BuildConfirmationEmail(city, token)
+	err = s.emailSvc.SendEmail(email, subject, htmlBody)
+	if err != nil {
 		log.Printf("Failed to send confirmation email: %v", err)
 		return "", err
 	}

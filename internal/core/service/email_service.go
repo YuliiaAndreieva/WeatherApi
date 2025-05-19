@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"weather-api/internal/core/domain"
 	"weather-api/internal/core/port"
@@ -39,10 +38,11 @@ func (s *EmailService) sendUpdates(subs []domain.Subscription) {
 		weather, err := s.weatherSvc.GetWeather(sub.City)
 		if err != nil {
 			log.Printf("Failed to get weather for %s: %v", sub.City, err)
-			continue
+			return
 		}
-		body := fmt.Sprintf("Weather in %s: Temp %.2f°C, Humidity %d%%, %s\nUnsubscribe: http://localhost:8080/api/unsubscribe/%s", sub.City, weather.Temperature, weather.Humidity, weather.Description, sub.Token)
-		if err := s.emailSvc.SendEmail(sub.Email, "Weather Update", body); err != nil {
+
+		subject, htmlBody := BuildWeatherUpdateEmail(sub.City, weather.Temperature, weather.Humidity, weather.Description, sub.Token)
+		if err := s.emailSvc.SendEmail(sub.Email, subject, htmlBody); err != nil {
 			log.Printf("Failed to send email to %s: %v", sub.Email, err)
 		}
 	}
