@@ -69,7 +69,7 @@ func main() {
 	port := strconv.Itoa(cfg.Port)
 
 	srv := &http.Server{
-		Addr:         port,
+		Addr:         ":" + port,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
