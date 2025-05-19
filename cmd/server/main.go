@@ -42,7 +42,7 @@ func main() {
 		log.Fatalf("Failed to apply migrations: %v", err)
 	}
 
-	emailAdapter := email.NewEmailService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass)
+	emailAdapter := email.NewSMTPEmailSender(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass)
 	weatherAdapter := weather.NewWeatherService(cfg.WeatherAPIKey)
 	repo := postgres.NewSubscriptionRepo(db)
 
@@ -71,7 +71,7 @@ func main() {
 	})
 
 	cron := cron.New()
-	cron.AddFunc("* * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
+	cron.AddFunc("0 0 * * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyHourly) })
 	cron.AddFunc("0 0 8 * * *", func() { emailService.SendUpdates(context.Background(), domain.FrequencyDaily) })
 	cron.Start()
 

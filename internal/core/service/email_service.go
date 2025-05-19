@@ -5,6 +5,7 @@ import (
 	"log"
 	"weather-api/internal/core/domain"
 	"weather-api/internal/core/port"
+	"weather-api/internal/util"
 )
 
 type EmailService struct {
@@ -41,7 +42,7 @@ func (s *EmailService) sendUpdates(subs []domain.Subscription) {
 			return
 		}
 
-		subject, htmlBody := BuildWeatherUpdateEmail(sub.City, weather.Temperature, weather.Humidity, weather.Description, sub.Token)
+		subject, htmlBody := util.BuildWeatherUpdateEmail(sub.City, weather.Temperature, weather.Humidity, weather.Description, sub.Token)
 		if err := s.emailSvc.SendEmail(sub.Email, subject, htmlBody); err != nil {
 			log.Printf("Failed to send email to %s: %v", sub.Email, err)
 		}
