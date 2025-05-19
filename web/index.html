@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Subscription</title>
     <script src="/web/config.js"></script>
-<style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; }
-    input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; display: none; }
-</style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <h1>Weather Subscription</h1>
@@ -33,14 +25,22 @@
         <option value="daily">Daily</option>
     </select>
 </div>
-<button onclick="subscribe()">Subscribe</button>
+<button id="subscribeBtn" onclick="subscribe()">Subscribe</button>
 <div id="result"></div>
 
 <script>
+    const subscribeBtn = document.getElementById('subscribeBtn');
+    const emailInput = document.getElementById('email');
+    const cityInput = document.getElementById('city');
+    const frequencySelect = document.getElementById('frequency');
+
     async function subscribe() {
-        const email = document.getElementById('email').value;
-        const city = document.getElementById('city').value;
-        const frequency = document.getElementById('frequency').value;
+        subscribeBtn.classList.add('clicked');
+        subscribeBtn.disabled = true;
+
+        const email = emailInput.value;
+        const city = cityInput.value;
+        const frequency = frequencySelect.value;
 
         try {
             const response = await fetch(`${config.baseUrl}/api/subscribe`, {
@@ -58,6 +58,15 @@
             document.getElementById('result').style.display = 'block';
         }
     }
+
+    function resetButtonState() {
+        subscribeBtn.classList.remove('clicked');
+        subscribeBtn.disabled = false;
+    }
+
+    emailInput.addEventListener('input', resetButtonState);
+    cityInput.addEventListener('input', resetButtonState);
+    frequencySelect.addEventListener('change', resetButtonState);
 </script>
 </body>
 </html>
