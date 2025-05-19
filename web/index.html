@@ -50,8 +50,6 @@
             });
 
             const data = await response.json();
-            document.getElementById('result').innerHTML = JSON.stringify(data);
-            document.getElementById('result').style.display = 'block';
             if (data.token) {
                 alert('Check your email for confirmation link!');
             }
